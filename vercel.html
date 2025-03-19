@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blooket Pack Calculator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
+    body {
+      font-family: 'Titan One', cursive;
+      text-align: center;
+      background-color: #09c2cf;
+      color: white;
+      font-size: 1.2em;
+    }
+    select {
+      margin: 20px;
+      padding: 15px;
+      font-size: 1.5em;
+    }
+    option {
+      font-family: 'Titan One', cursive;
+      text-shadow: 2px 2px 4px black;
+      font-size: 1.5em;
+    }
+    .token-icon {
+      width: 30px;
+      height: 30px;
+      vertical-align: middle;
+    }
+    h1 { 
+      font-size: 3em;
+      margin-top: 20px;
+    }
+    label { 
+      font-size: 1.3em; 
+    }
+    #result, #daysGrind {
+      font-size: 2em;
+      margin-top: 20px;
+    }
+    .toggle-container {
+      margin: 20px;
+      font-size: 1.3em;
+      display: inline-block;
+      text-align: center;
+    }
+    .slider-container {
+      display: inline-block;
+      text-align: left;
+      margin-top: 10px;
+    }
+    .slider {
+      width: 60px;
+      height: 30px;
+      border-radius: 15px;
+      background-color: #ddd;
+      position: relative;
+      cursor: pointer;
+    }
+    .slider:before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background-color: white;
+      transition: all 0.3s ease;
+    }
+    .slider.active {
+      background-color: #4CAF50;
+    }
+    .slider.active:before {
+      left: 34px;
+    }
+    .slider-container span {
+      font-size: 1.3em;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blooket Pack Calculator</h1>
+
+  <label for="pack">Select a Pack:</label>
+  <select id="pack">
+    <option value="bug">Bug Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 25)</option>
+    <option value="pirate">Pirate Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 25)</option>
+    <option value="outback">Outback Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 25)</option>
+    <option value="ice_monster">Ice Monster Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 25)</option>
+    <option value="dino">Dino Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 25)</option>
+    <option value="aquatic">Aquatic Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 20)</option>
+    <option value="safari">Safari Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 20)</option>
+    <option value="bot">Bot Pack ( <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> 20)</option>
+  </select>
+
+  <br />
+
+  <label for="blook">Select a Blook:</label>
+  <select id="blook"></select>
+
+  <div class="slider-container">
+    <span>Sell Uncommon/Rare/Epic Blooks?</span>
+    <div id="slider" class="slider"></div>
+    <span id="sliderLabel">No</span>
+  </div>
+
+  <p id="result"></p>
+  <p id="daysGrind"></p>
+
+  <script>
+    const rarityColors = {
+      uncommon: 'green',
+      rare: 'blue',
+      epic: 'red',
+      legendary: 'orange',
+      chroma: '#00bcd4'
+    };
+
+    // Determines color based on probability percentage.
+    function getRarityColor(probability) {
+      if (probability >= 12) return rarityColors.uncommon;
+      if (probability >= 6) return rarityColors.rare;
+      if (probability >= 2) return rarityColors.epic;
+      if (probability >= 0.2) return rarityColors.legendary;
+      return rarityColors.chroma;
+    }
+
+    const packs = {
+      bug: {
+        cost: 25,
+        blooks: {
+          "Ant": 19.625,
+          "Rhino Beetle": 19.625,
+          "Ladybug": 19.625,
+          "Fly": 19.625,
+          "Worm": 9,
+          "Bee": 9,
+          "Mantis": 2.97,
+          "Butterfly": 0.5,
+          "Blue Butterfly": 0.03
+        }
+      },
+      pirate: {
+        cost: 25,
+        blooks: {
+          "Deckhand": 16,
+          "Buccaneer": 16,
+          "Swashbuckler": 16,
+          "Treasure Map": 16,
+          "Seagull": 16,
+          "Jolly Pirate": 8,
+          "Pirate Ship": 8,
+          "Kraken": 3.67,
+          "Captain Blackbeard": 0.3,
+          "Pirate Pufferfish": 0.03
+        }
+      },
+      outback: {
+        cost: 25,
+        blooks: {
+          "Dingo": 18.75,
+          "Echidna": 18.75,
+          "Koala": 18.75,
+          "Kookaburra": 18.75,
+          "Platypus": 7,
+          "Joey": 7,
+          "Kangaroo": 7,
+          "Crocodile": 3.6,
+          "Sugar Glider": 0.37,
+          "Teal Platypus": 0.03
+        }
+      },
+      ice_monster: {
+        cost: 25,
+        blooks: {
+          "Ice Bat": 19.5,
+          "Ice Bug": 19.5,
+          "Ice Elemental": 19.5,
+          "Rock Monster": 19.5,
+          "Ding": 8.5,
+          "Donk": 8.5,
+          "Bush Monster": 4.5,
+          "Yeti": 0.35,
+          "Ice Slime": 0.08,
+          "Frozen Fossil": 0.05,
+          "Ice Crab": 0.02
+        }
+      },
+      dino: {
+        cost: 25,
+        blooks: {
+          "Amber": 19.5,
+          "Dino Egg": 19.5,
+          "Dino Fossil": 19.5,
+          "Stegosaurus": 19.5,
+          "Velociraptor": 9,
+          "Brontosaurus": 9,
+          "Triceratops": 3.7,
+          "Tyrannosaurus Rex": 0.3
+        }
+      },
+      aquatic: {
+        cost: 20,
+        blooks: {
+          "Old Boot": 15,
+          "Jellyfish": 15,
+          "Clownfish": 15,
+          "Frog": 15,
+          "Crab": 15,
+          "Pufferfish": 6.1,
+          "Blobfish": 6.1,
+          "Octopus": 6.1,
+          "Narwhal": 3,
+          "Dolphin": 3,
+          "Baby Shark": 0.5,
+          "Megalodon": 0.2
+        }
+      },
+      safari: {
+        cost: 20,
+        blooks: {
+          "Panda": 15,
+          "Sloth": 15,
+          "Tenrec": 15,
+          "Flamingo": 15,
+          "Zebra": 15,
+          "Elephant": 7,
+          "Lemur": 7,
+          "Peacock": 7,
+          "Chameleon": 3.48,
+          "Lion": 0.5,
+          "Rainbow Panda": 0.02
+        }
+      },
+      bot: {
+        cost: 20,
+        blooks: {
+          "Lil Bot": 19.5,
+          "Lovely Bot": 19.5,
+          "Angry Bot": 19.5,
+          "Happy Bot": 19.5,
+          "Watson": 9,
+          "Buddy Bot": 9,
+          "Brainy Bot": 3.7,
+          "Mega Bot": 0.3
+        }
+      }
+    };
+
+    // Update blook options when a pack is selected
+    function updateBlooks() {
+      let packKey = document.getElementById("pack").value;
+      let blookSelect = document.getElementById("blook");
+      blookSelect.innerHTML = "";
+      for (let blook in packs[packKey].blooks) {
+        let probability = packs[packKey].blooks[blook];
+        let option = document.createElement("option");
+        option.value = probability;
+        option.textContent = blook;
+        option.style.color = getRarityColor(probability);
+        blookSelect.appendChild(option);
+      }
+      calculateTokens();
+    }
+
+    // Function to simulate the Daily Spin tokens based on weighted probabilities.
+    function simulateSpinTokens() {
+      const random = Math.random() * 100; // random number between 0 and 100
+      if (random < 58) {           // 58% chance for 10 tokens
+        return 10;
+      } else if (random < 78) {      // next 20% (58 to 78) for 25 tokens
+        return 25;
+      } else if (random < 90) {      // next 12% (78 to 90) for 50 tokens
+        return 50;
+      } else if (random < 95) {      // next 5% (90 to 95) for 75 tokens
+        return 75;
+      } else if (random < 98) {      // next 3% (95 to 98) for 100 tokens
+        return 100;
+      } else if (random < 99) {      // next 1% (98 to 99) for 500 tokens
+        return 500;
+      } else {                     // remaining 1% (99 to 100) for 1000 tokens
+        return 1000;
+      }
+    }
+
+    // Calculate tokens needed (for buying whole packs) and simulate the number of days needed.
+    function calculateTokens() {
+      let packKey = document.getElementById("pack").value;
+      let pack = packs[packKey];
+
+      // Get target probability (as a percentage) from the selected blook and convert to decimal.
+      let targetProbPercent = parseFloat(document.getElementById("blook").value);
+      let targetProb = targetProbPercent / 100;
+      
+      // Expected number of packs to open to get the target blook.
+      let expectedPacks = 1 / targetProb;
+      
+      // Base tokens spent without selling.
+      let tokensSpent = expectedPacks * pack.cost;
+      
+      // If selling is toggled on, calculate expected tokens earned from selling non‐target blooks.
+      let sellToggle = document.getElementById("slider").classList.contains("active");
+      if (sellToggle) {
+        let expectedFailures = expectedPacks - 1;
+        let saleTokensPerFailure = 0;
+        for (let b in pack.blooks) {
+          if (pack.blooks[b] === targetProbPercent) continue; 
+          let bProbPercent = pack.blooks[b];
+          let saleValue = 0;
+          if (bProbPercent >= 12) saleValue = 5; 
+          else if (bProbPercent >= 6) saleValue = 20; 
+          else if (bProbPercent >= 2) saleValue = 75; 
+          if (saleValue > 0) {
+            saleTokensPerFailure += ((bProbPercent / 100) / (1 - targetProb)) * saleValue;
+          }
+        }
+        let totalSaleTokens = expectedFailures * saleTokensPerFailure;
+        tokensSpent -= totalSaleTokens;
+      }
+      
+      let tokensToBuy = Math.ceil(tokensSpent / pack.cost) * pack.cost;
+
+      // Daily grinding tokens are fixed.
+      const grindingTokens = 500;
+      
+      // Simulate each day until reaching the target tokens.
+      let totalTokensEarned = 0;
+      let dayCount = 0;
+      while(totalTokensEarned < tokensToBuy) {
+        dayCount++;
+        // For each day, the user gets 500 from grinding plus a new Daily Spin roll.
+        totalTokensEarned += grindingTokens + simulateSpinTokens();
+      }
+
+      document.getElementById("result").innerHTML =
+        `Estimated tokens needed: <img src="https://ac.blooket.com/dashclassic/assets/Token-DmrosBZF.svg" class="token-icon"> ${tokensToBuy}`;
+        
+      document.getElementById("daysGrind").innerHTML =
+        `Days of grinding (Daily Tokens: Grinding 500 + Daily Spin): ${dayCount} day(s)`;
+    }
+
+    // Toggle the slider for selling blooks
+    document.getElementById("slider").addEventListener("click", function() {
+      this.classList.toggle("active");
+      const label = document.getElementById("sliderLabel");
+      if (this.classList.contains("active")) {
+        label.textContent = "Yes";
+      } else {
+        label.textContent = "No";
+      }
+      calculateTokens();
+    });
+
+    // Initialize the page
+    document.getElementById("pack").addEventListener("change", updateBlooks);
+    document.getElementById("blook").addEventListener("change", calculateTokens);
+    
+    updateBlooks();
+  </script>
+</body>
+</html>
